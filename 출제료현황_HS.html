@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2027 통합과학 S팀 출제료 지급 현황</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0f2f5; --white:#fff; --border:#e4e7ed; --border2:#d1d5db;
+  --shadow-card:0 2px 8px rgba(0,0,0,.07),0 0 1px rgba(0,0,0,.05);
+  --shadow-hover:0 6px 20px rgba(0,0,0,.10),0 0 1px rgba(0,0,0,.06);
+  --text-primary:#1a1f36; --text-secondary:#4a5568; --text-muted:#9ca3af;
+  --cs11:#2563eb; --cs11-bg:#eff6ff; --cs11-border:#bfdbfe;
+  --cs12:#ea580c; --cs12-bg:#fff7ed; --cs12-border:#fed7aa;
+  --gR:#dc2626; --gR-bg:#fef2f2; --gR-bd:#fecaca;
+  --gS:#b45309; --gS-bg:#fffbeb; --gS-bd:#fde68a;
+  --gA:#15803d; --gA-bg:#f0fdf4; --gA-bd:#bbf7d0;
+  --gB:#1d4ed8; --gB-bg:#eff6ff; --gB-bd:#bfdbfe;
+  --green:#16a34a; --green-bg:#f0fdf4; --green-bd:#bbf7d0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Pretendard','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;font-size:14px;}
+
+/* ══ 헤더 ══ */
+.top-header{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:300;box-shadow:0 1px 4px rgba(0,0,0,.06);gap:12px;flex-wrap:wrap;}
+.header-title{display:flex;align-items:baseline;gap:10px;}
+.header-title h1{font-size:15px;font-weight:700;color:var(--text-primary);letter-spacing:-.3px;}
+.header-title span{font-size:12px;color:var(--text-muted);}
+.header-controls{display:flex;align-items:center;gap:8px;}
+
+.team-toggle{display:flex;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:3px;gap:2px;}
+.team-btn{padding:5px 18px;border:none;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:transparent;color:var(--text-muted);transition:all .18s;}
+.team-btn:hover:not(.active){color:var(--text-secondary);background:rgba(0,0,0,.04);}
+.team-btn.active.cs11{background:var(--white);color:var(--cs11);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.team-btn.active.cs12{background:var(--white);color:var(--cs12);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+
+.hdr-btn{padding:5px 14px;border:1px solid var(--border2);border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:var(--white);color:var(--text-secondary);transition:all .18s;}
+.hdr-btn:hover{background:var(--bg);}
+.hdr-btn.stats:hover,.hdr-btn.stats.active{background:var(--green-bg);color:var(--green);border-color:var(--green-bd);}
+
+/* ══ 칩 바 ══ */
+.chip-nav{background:var(--white);border-bottom:1px solid var(--border);padding:10px 28px;position:sticky;top:56px;z-index:200;}
+.chip-nav.hidden{display:none;}
+.chip-nav-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;}
+.chip-row{display:flex;gap:5px;flex-wrap:wrap;}
+.chip{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text-secondary);transition:all .15s;}
+.chip:hover{background:var(--white);color:var(--text-primary);}
+.chip.active.cs11{background:var(--cs11-bg);border-color:var(--cs11-border);color:var(--cs11);font-weight:700;}
+.chip.active.cs12{background:var(--cs12-bg);border-color:var(--cs12-border);color:var(--cs12);font-weight:700;}
+
+.chip-add-btn{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:1.5px dashed var(--border2);background:transparent;color:var(--text-muted);transition:all .15s;display:inline-flex;align-items:center;gap:4px;}
+.chip-add-btn:hover{border-color:var(--cs11);color:var(--cs11);background:var(--cs11-bg);}
+.chip-add-btn.cs12:hover{border-color:var(--cs12);color:var(--cs12);background:var(--cs12-bg);}
+
+/* 삭제 버튼 */
+.del-btn{padding:5px 13px;border:1px solid #fecaca;border-radius:7px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;background:#fef2f2;color:var(--gR);transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.del-btn:hover{background:#fee2e2;border-color:var(--gR);}
+
+/* 품의서 버튼 */
+.pum-btn{padding:5px 13px;border:1px solid var(--green-bd);border-radius:7px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;background:var(--green-bg);color:var(--green);transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.pum-btn:hover{background:#dcfce7;border-color:var(--green);}
+
+/* 품의서 모달 테이블 */
+.pum-table-wrap{overflow-x:auto;margin-bottom:16px;}
+.pum-table{width:100%;border-collapse:collapse;font-size:13px;}
+.pum-table th{padding:9px 12px;background:#f0fdf4;color:var(--green);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:1px solid #d1fae5;text-align:center;}
+.pum-table td{padding:10px 12px;border:1px solid var(--border);text-align:center;color:var(--text-primary);font-size:13px;vertical-align:middle;}
+.pum-table td.td-desc{text-align:left;line-height:1.5;}
+.pum-table td.td-fee{font-weight:700;color:var(--green);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.pum-table tbody tr:hover td{background:#f6fef9;cursor:pointer;}
+.pum-table tbody tr:has(input:checked) td{background:#f0fdf4;}
+.pum-copy-btn{display:flex;align-items:center;gap:7px;padding:9px 20px;border:none;border-radius:8px;background:var(--green);color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;margin-left:auto;}
+.pum-copy-btn:hover{background:#15803d;}
+.pum-copy-btn.copied{background:#166534;}
+.pum-hint{font-size:11px;color:var(--text-muted);margin-bottom:12px;}
+
+/* 원고 추가 모달 */
+.add-modal-body{padding:20px;}
+.add-field{margin-bottom:16px;}
+.add-field label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
+.add-field input,.add-field select{width:100%;padding:8px 12px;border:1px solid var(--border2);border-radius:8px;font-family:inherit;font-size:13px;outline:none;transition:border-color .15s;}
+.add-field input:focus,.add-field select:focus{border-color:var(--cs11);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.add-field-hint{font-size:11px;color:var(--text-muted);margin-top:4px;}
+
+/* ══ 본문 ══ */
+.page-body{padding:24px 28px 60px;max-width:860px;}
+.legend-bar{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);}
+
+/* ══ 카드 ══ */
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-card);overflow:hidden;transition:box-shadow .2s;}
+.card:hover{box-shadow:var(--shadow-hover);}
+.mb20{margin-bottom:20px;}
+
+/* 원고 카드 헤더 */
+.section-header{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);}
+.section-header h2{font-size:16px;font-weight:800;}
+.team-tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.team-tag.cs11{background:var(--cs11-bg);color:var(--cs11);border:1px solid var(--cs11-border);}
+.team-tag.cs12{background:var(--cs12-bg);color:var(--cs12);border:1px solid var(--cs12-border);}
+.total-badge{margin-left:auto;font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:10px;}
+.total-badge strong{font-weight:800;font-size:15px;}
+.total-badge.cs11 strong{color:var(--cs11);}
+.total-badge.cs12 strong{color:var(--cs12);}
+
+/* 편집 버튼 */
+.edit-btn{padding:5px 13px;border:1px solid var(--border2);border-radius:7px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--text-secondary);transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.edit-btn:hover{background:var(--cs11-bg);border-color:var(--cs11-border);color:var(--cs11);}
+
+/* ══ 테이블 ══ */
+.card table{width:100%;border-collapse:collapse;font-size:13px;}
+.card thead th{padding:9px 16px;text-align:center;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;background:#fafbfc;border-bottom:1px solid var(--border);}
+.card tbody td{padding:10px 16px;text-align:center;border-bottom:1px solid #f3f4f6;}
+.card tbody tr:last-child td{border-bottom:none;}
+.card tbody tr:hover td{background:#fafbff;}
+td.col-q{text-align:left;color:var(--text-muted);font-size:12px;font-weight:500;}
+td.col-name{font-weight:600;color:var(--text-primary);}
+.card tfoot td{padding:10px 16px;font-weight:700;font-size:13px;border-top:2px solid var(--border);background:#fafbfc;}
+tfoot.t11 td{color:var(--cs11);}
+tfoot.t12 td{color:var(--cs12);}
+.foot-label{text-align:right;font-size:11px;font-weight:500;color:var(--text-muted);}
+
+/* ══ 등급/금액 ══ */
+.grade{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;padding:0 6px;border-radius:5px;font-size:12px;font-weight:700;}
+.gR{background:var(--gR-bg);color:var(--gR);border:1px solid var(--gR-bd);}
+.gS{background:var(--gS-bg);color:var(--gS);border:1px solid var(--gS-bd);}
+.gA{background:var(--gA-bg);color:var(--gA);border:1px solid var(--gA-bd);}
+.gB{background:var(--gB-bg);color:var(--gB);border:1px solid var(--gB-bd);}
+.g0{color:var(--text-muted);font-size:12px;}
+.fR{color:var(--gR);font-weight:700;}
+.fS{color:var(--gS);font-weight:700;}
+.fA{color:var(--gA);font-weight:700;}
+.fB{color:var(--gB);font-weight:700;}
+.f0{color:var(--text-muted);}
+
+/* ══ 소계 카드 ══ */
+.sub-title{font-size:13px;font-weight:700;color:var(--text-primary);margin:20px 0 10px;display:flex;align-items:center;gap:8px;}
+.sub-title::before{content:'';display:block;width:3px;height:14px;border-radius:2px;background:var(--cs11);}
+.sub-title.t12::before{background:var(--cs12);}
+.summary-card thead th{background:var(--cs11-bg)!important;color:var(--cs11)!important;}
+.summary-card.t12 thead th{background:var(--cs12-bg)!important;color:var(--cs12)!important;}
+.summary-card tfoot td{background:var(--cs11-bg);color:var(--cs11);border-top:2px solid var(--cs11-border);}
+.summary-card.t12 tfoot td{background:var(--cs12-bg);color:var(--cs12);border-top:2px solid var(--cs12-border);}
+
+.cnt{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;}
+.cntR{background:var(--gR-bg);color:var(--gR);border:1px solid var(--gR-bd);}
+.cntS{background:var(--gS-bg);color:var(--gS);border:1px solid var(--gS-bd);}
+.cntA{background:var(--gA-bg);color:var(--gA);border:1px solid var(--gA-bd);}
+.cntB{background:var(--gB-bg);color:var(--gB);border:1px solid var(--gB-bd);}
+.cnt0{background:#f3f4f6;color:var(--text-muted);}
+
+.empty-note{text-align:center;padding:32px;color:var(--text-muted);font-size:13px;}
+
+/* ══ 통계 뷰 ══ */
+#stats-view{display:none;}
+#stats-view.visible{display:block;}
+.stats-team-bar{display:flex;gap:6px;margin-bottom:20px;}
+.st-btn{padding:6px 20px;border-radius:8px;border:1px solid var(--border2);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--white);color:var(--text-muted);transition:all .18s;}
+.st-btn.active.cs11{background:var(--cs11-bg);color:var(--cs11);border-color:var(--cs11-border);}
+.st-btn.active.cs12{background:var(--cs12-bg);color:var(--cs12);border-color:var(--cs12-border);}
+
+.person-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:14px;margin-bottom:28px;}
+.person-card{background:var(--white);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-card);overflow:hidden;transition:box-shadow .2s,transform .2s;}
+.person-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);}
+.pc-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+.pc-name{font-size:15px;font-weight:800;color:var(--text-primary);}
+.pc-sub{font-size:11px;color:var(--text-muted);margin-top:3px;}
+.pc-body{padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
+.pc-row{display:flex;justify-content:space-between;align-items:center;}
+.pc-label{font-size:12px;color:var(--text-muted);font-weight:500;}
+.pc-val{font-size:13px;font-weight:700;}
+.grade-pills{display:flex;gap:4px;flex-wrap:wrap;}
+.gpill{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;}
+.gpR{background:var(--gR-bg);color:var(--gR);border:1px solid var(--gR-bd);}
+.gpS{background:var(--gS-bg);color:var(--gS);border:1px solid var(--gS-bd);}
+.gpA{background:var(--gA-bg);color:var(--gA);border:1px solid var(--gA-bd);}
+.gpB{background:var(--gB-bg);color:var(--gB);border:1px solid var(--gB-bd);}
+.gpNone{background:#f3f4f6;color:var(--text-muted);}
+.ratio-bar-wrap{}
+.ratio-label{font-size:11px;color:var(--text-muted);margin-bottom:5px;}
+.ratio-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:#f3f4f6;}
+.rb-R{background:var(--gR);}
+.rb-S{background:var(--gS);}
+.rb-A{background:var(--gA);}
+.rb-B{background:var(--gB);}
+.pc-foot{padding:11px 16px;border-top:1px solid var(--border);background:#fafbfc;display:flex;align-items:center;justify-content:space-between;}
+.pc-foot-label{font-size:11px;color:var(--text-muted);font-weight:500;}
+.pc-fee{font-size:18px;font-weight:800;}
+.pc-fee.cs11{color:var(--cs11);}
+.pc-fee.cs12{color:var(--cs12);}
+.pc-fee.none{font-size:14px;color:var(--text-muted);font-weight:500;}
+
+.rank-title{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.rank-title::before{content:'';display:block;width:3px;height:14px;border-radius:2px;background:var(--green);}
+.rank-card thead th{background:var(--green-bg)!important;color:var(--green)!important;}
+.rank-card tbody tr:hover td{background:#f6fef9;}
+.rank-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:800;background:#f3f4f6;color:var(--text-muted);}
+.rank-num.n1{background:#fef9c3;color:#92400e;}
+.rank-num.n2{background:#f1f5f9;color:#475569;}
+.rank-num.n3{background:#fff1f2;color:#9f1239;}
+.fee-cell{font-weight:700;font-size:13px;}
+.fee-cell.cs11{color:var(--cs11);}
+.fee-cell.cs12{color:var(--cs12);}
+.rs-high{font-size:12px;font-weight:600;color:var(--green);}
+.rs-low{font-size:12px;font-weight:600;color:var(--text-muted);}
+
+/* ══════════════════════════════
+   편집 모달
+══════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(15,20,40,.45);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;opacity:0;pointer-events:none;
+  transition:opacity .2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{
+  background:var(--white);border-radius:16px;
+  width:480px;max-width:95vw;max-height:90vh;
+  overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.18);
+  transform:translateY(12px);transition:transform .22s;
+}
+.modal-overlay.open .modal{transform:translateY(0);}
+
+.modal-head{
+  padding:18px 20px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--white);z-index:2;
+}
+.modal-head h3{font-size:15px;font-weight:800;}
+.modal-close{
+  width:28px;height:28px;border:none;border-radius:50%;
+  background:var(--bg);cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);transition:all .15s;
+}
+.modal-close:hover{background:var(--border);color:var(--text-primary);}
+
+.modal-body{padding:16px 20px;}
+
+/* 문항 편집 행 */
+.edit-row{
+  display:grid;grid-template-columns:48px 1fr 120px;gap:8px;
+  align-items:center;margin-bottom:10px;
+}
+.edit-row-label{font-size:12px;font-weight:600;color:var(--text-muted);}
+.edit-input{
+  width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;
+  font-family:inherit;font-size:13px;color:var(--text-primary);
+  background:var(--white);transition:border-color .15s;outline:none;
+}
+.edit-input:focus{border-color:var(--cs11);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+
+/* 등급 라디오 버튼 그룹 */
+.grade-radio-group{display:flex;gap:5px;}
+.grade-radio-group input[type=radio]{display:none;}
+.grade-radio-group label{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:30px;border-radius:6px;cursor:pointer;
+  font-size:12px;font-weight:700;border:1.5px solid var(--border2);
+  background:var(--bg);color:var(--text-muted);transition:all .15s;
+}
+.grade-radio-group input[value=R]:checked+label,.grade-radio-group label.sel-R{background:var(--gR-bg);color:var(--gR);border-color:var(--gR-bd);}
+.grade-radio-group input[value=S]:checked+label,.grade-radio-group label.sel-S{background:var(--gS-bg);color:var(--gS);border-color:var(--gS-bd);}
+.grade-radio-group input[value=A]:checked+label,.grade-radio-group label.sel-A{background:var(--gA-bg);color:var(--gA);border-color:var(--gA-bd);}
+.grade-radio-group input[value=B]:checked+label,.grade-radio-group label.sel-B{background:var(--gB-bg);color:var(--gB);border-color:var(--gB-bd);}
+.grade-radio-group label.sel-none{background:var(--bg);color:var(--text-muted);border-color:var(--border2);}
+
+.modal-foot{
+  padding:14px 20px 18px;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:8px;
+  position:sticky;bottom:0;background:var(--white);
+}
+.btn-cancel{padding:8px 20px;border:1px solid var(--border2);border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--white);color:var(--text-secondary);transition:all .15s;}
+.btn-cancel:hover{background:var(--bg);}
+.btn-save{padding:8px 24px;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;background:var(--cs11);color:#fff;transition:all .15s;}
+.btn-save:hover{background:var(--cs11);opacity:.9;}
+.btn-save.t12{background:var(--cs12);}
+
+/* 토스트 */
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:#1a1f36;color:#fff;padding:10px 22px;border-radius:20px;
+  font-size:13px;font-weight:600;opacity:0;pointer-events:none;
+  transition:all .25s;z-index:2000;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* 애니메이션 */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.fade-in{animation:fadeUp .22s ease;}
+</style>
+</head>
+<body>
+
+<!-- ══ 헤더 ══ -->
+<div class="top-header">
+  <div class="header-title">
+    <h1>2027 통합과학 S팀 — 출제료 지급 현황</h1>
+    <span id="header-count">총 30개 원고</span>
+  </div>
+  <div class="header-controls">
+    <div class="team-toggle" id="team-toggle">
+      <!-- 동적 렌더링 -->
+    </div>
+    <button class="hdr-btn" onclick="openAddTeamModal()" style="border-style:dashed;">+ 팀 추가</button>
+    <!-- 원고/통계 탭 -->
+    <div class="team-toggle" style="margin-left:4px;">
+      <button class="team-btn active" id="tab-manu" onclick="showTab('manu')" style="background:white;color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,.1);">📄 원고</button>
+      <button class="team-btn" id="tab-stats" onclick="showTab('stats')">📊 통계</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 칩 바 ══ -->
+<div class="chip-nav" id="chip-nav">
+  <div class="chip-nav-label" id="chip-label"></div>
+  <div class="chip-row" id="chip-row"></div>
+  <!-- + 추가 버튼은 buildChips()에서 동적으로 삽입 -->
+</div>
+
+<!-- ══ 본문 ══ -->
+<div class="page-body">
+  <div id="manu-view">
+    <div class="legend-bar">
+      <div class="legend-item"><span class="grade gR">R</span> 30만원</div>
+      <div class="legend-item"><span class="grade gS">S</span> 20만원</div>
+      <div class="legend-item"><span class="grade gA">A</span> 10만원</div>
+      <div class="legend-item"><span class="grade gB">B</span> 5만원</div>
+    </div>
+    <div id="manu-panel"></div>
+  </div>
+
+  <div id="stats-view">
+    <div class="stats-team-bar" id="stats-team-bar">
+      <!-- 동적 렌더링 -->
+    </div>
+    <div id="stats-content"></div>
+  </div>
+</div>
+
+<!-- ══ 팀 추가 모달 ══ -->
+<div class="modal-overlay" id="add-team-modal-overlay" onclick="closeAddTeamModal(event)">
+  <div class="modal" style="width:360px;">
+    <div class="modal-head">
+      <h3>팀 추가</h3>
+      <button class="modal-close" onclick="closeAddTeamModalDirect()">✕</button>
+    </div>
+    <div class="add-modal-body">
+      <div class="add-field">
+        <label>팀명</label>
+        <input type="text" id="add-team-name" placeholder="예: CS13, ES01, PS01, BS01 ..." maxlength="10">
+        <div class="add-field-hint">
+          첫 글자에 따라 과목이 자동 지정돼요<br>
+          <strong>C</strong>→화학 &nbsp; <strong>E</strong>→지구과학 &nbsp; <strong>P</strong>→물리학 &nbsp; <strong>B</strong>→생명과학
+        </div>
+      </div>
+      <div class="add-field">
+        <label>팀원 이름 <span style="font-weight:400;color:var(--text-muted)">(쉼표로 구분)</span></label>
+        <input type="text" id="add-team-members" placeholder="예: 홍길동, 김철수, 이영희">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeAddTeamModalDirect()">취소</button>
+      <button class="btn-save" onclick="confirmAddTeam()">팀 추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 팀 삭제 확인 모달 ══ -->
+<div class="modal-overlay" id="del-team-modal-overlay" onclick="closeDelTeamModal(event)">
+  <div class="modal" style="width:340px;">
+    <div class="modal-head">
+      <h3 style="color:var(--gR);">⚠️ 팀 삭제</h3>
+      <button class="modal-close" onclick="closeDelTeamModalDirect()">✕</button>
+    </div>
+    <div style="padding:20px 20px 8px;">
+      <p id="del-team-msg" style="font-size:14px;color:var(--text-secondary);line-height:1.6;"></p>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">해당 팀의 모든 원고와 데이터도 함께 삭제됩니다.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeDelTeamModalDirect()">취소</button>
+      <button class="btn-save" style="background:#dc2626;" onclick="confirmDelTeam()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 편집 모달 ══ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <h3 id="modal-title">원고 편집</h3>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModalDirect()">취소</button>
+      <button class="btn-save" id="btn-save" onclick="saveModal()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast">저장되었습니다 ✓</div>
+
+<!-- ══ 원고 추가 모달 ══ -->
+<div class="modal-overlay" id="add-modal-overlay" onclick="closeAddModal(event)">
+  <div class="modal" id="add-modal" style="width:360px;">
+    <div class="modal-head">
+      <h3 id="add-modal-title">원고 추가</h3>
+      <button class="modal-close" onclick="closeAddModalDirect()">✕</button>
+    </div>
+    <div class="add-modal-body">
+      <div class="add-field">
+        <label>원고명</label>
+        <input type="text" id="add-manu-name" placeholder="예: D13, A07, C07 ..." maxlength="10">
+        <div class="add-field-hint">영문 + 숫자 조합으로 입력해주세요 (예: D13)</div>
+      </div>
+      <div class="add-field">
+        <label>문항 수</label>
+        <select id="add-manu-count">
+          <option value="5">5문항</option>
+          <option value="6" selected>6문항</option>
+          <option value="7">7문항</option>
+          <option value="8">8문항</option>
+          <option value="10">10문항</option>
+        </select>
+      </div>
+      <div class="add-field" id="add-team-field">
+        <label>담당 팀</label>
+        <div style="display:flex;gap:8px;margin-top:2px;">
+          <button class="team-btn cs11 active" id="add-team-cs11" onclick="selectAddTeam('CS11')" style="flex:1;border:1px solid var(--cs11-border);">CS11</button>
+          <button class="team-btn cs12" id="add-team-cs12" onclick="selectAddTeam('CS12')" style="flex:1;border:1px solid var(--border2);">CS12</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeAddModalDirect()">취소</button>
+      <button class="btn-save" id="btn-add-save" onclick="confirmAddManu()">추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 삭제 확인 모달 ══ -->
+<div class="modal-overlay" id="del-modal-overlay" onclick="closeDelModal(event)">
+  <div class="modal" id="del-modal" style="width:340px;">
+    <div class="modal-head">
+      <h3 style="color:var(--gR);">⚠️ 원고 삭제</h3>
+      <button class="modal-close" onclick="closeDelModalDirect()">✕</button>
+    </div>
+    <div style="padding:20px 20px 8px;">
+      <p id="del-modal-msg" style="font-size:14px;color:var(--text-secondary);line-height:1.6;"></p>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">입력된 데이터도 모두 삭제됩니다. 이 작업은 되돌릴 수 없어요.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeDelModalDirect()">취소</button>
+      <button class="btn-save" id="btn-del-confirm" style="background:#dc2626;" onclick="confirmDelManu()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 품의서 모달 ══ -->
+<div class="modal-overlay" id="pum-modal-overlay" onclick="closePumModal(event)">
+  <div class="modal" id="pum-modal" style="width:640px;max-width:96vw;">
+    <div class="modal-head">
+      <h3 id="pum-modal-title">📋 품의서 항목</h3>
+      <button class="modal-close" onclick="closePumModalDirect()">✕</button>
+    </div>
+    <div style="padding:16px 20px 4px;">
+      <p class="pum-hint">체크한 행만 복사돼요 — 엑셀에 Ctrl+V 하면 셀에 그대로 들어가요.</p>
+      <div class="pum-table-wrap">
+        <table class="pum-table" id="pum-table">
+          <thead><tr>
+            <th style="width:36px;text-align:center;">
+              <input type="checkbox" id="pum-check-all" onchange="toggleAllPumChecks(this)" title="전체 선택/해제" style="cursor:pointer;width:15px;height:15px;">
+            </th>
+            <th>성명</th><th>소속</th><th>과목</th><th>내용</th><th>금액</th>
+          </tr></thead>
+          <tbody id="pum-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span id="pum-check-count" style="font-size:12px;color:var(--text-muted);margin-right:auto;align-self:center;"></span>
+      <button class="btn-cancel" onclick="closePumModalDirect()">닫기</button>
+      <button class="pum-copy-btn" id="pum-copy-btn" onclick="copyPumTable()">📋 선택 행 복사</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const FEE = {R:30,S:20,A:10,B:5};
+const e7 = () => Array.from({length:7},(_,i)=>({q:`${i+1}번`,p:'',g:''}));
+
+const DEFAULT_M = {};
+
+const MEMBERS = {};
+
+// 팀 관리 (동적)
+const DEFAULT_TEAMS = {};
+
+// 팀명 첫 글자 → 과목 매핑
+function getSubjectByTeam(teamName) {
+  const first = teamName.charAt(0).toUpperCase();
+  return {C:'화학', E:'지구과학', P:'물리학', B:'생명과학'}[first] || teamName;
+}
+
+// 팀 색상 팔레트 (순환)
+const TEAM_COLORS = [
+  {main:'#2563eb', bg:'#eff6ff', border:'#bfdbfe'},
+  {main:'#ea580c', bg:'#fff7ed', border:'#fed7aa'},
+  {main:'#7c3aed', bg:'#f5f3ff', border:'#ddd6fe'},
+  {main:'#0891b2', bg:'#ecfeff', border:'#a5f3fc'},
+  {main:'#15803d', bg:'#f0fdf4', border:'#bbf7d0'},
+  {main:'#be185d', bg:'#fdf2f8', border:'#fbcfe8'},
+];
+function getTeamColor(teamName) {
+  const teams = Object.keys(TEAMS);
+  const idx = teams.indexOf(teamName) % TEAM_COLORS.length;
+  return TEAM_COLORS[Math.max(0,idx)];
+}
+
+let TEAMS = {...DEFAULT_TEAMS};
+const M = DEFAULT_M;
+
+/* ═══════════════════
+   상태
+═══════════════════ */
+let curTeam = '';
+let curManu = null;
+let statsMode = false;
+let stTeam = '';
+
+/* ═══════════════════
+   Google Sheets 연동
+═══════════════════ */
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxU_RAXhwj3r3irn8gEMalQrWDJXTmrSQJMPvLYz8hW4wbgmLr36SFcRsMNEt3acom1/exec';
+
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_cb_' + Date.now();
+    const script = document.createElement('script');
+    window[cbName] = (data) => {
+      delete window[cbName];
+      document.body.removeChild(script);
+      resolve(data);
+    };
+    script.onerror = () => {
+      delete window[cbName];
+      document.body.removeChild(script);
+      reject(new Error('JSONP 실패'));
+    };
+    script.src = url + '&callback=' + cbName;
+    document.body.appendChild(script);
+  });
+}
+
+async function loadData() {
+  try {
+    showLoadingOverlay(true);
+    const parsed = await jsonp(GAS_URL + '?action=load&user=HS');
+    if (parsed.teams) {
+      Object.assign(TEAMS, parsed.teams);
+      Object.keys(TEAMS).forEach(t => { MEMBERS[t] = TEAMS[t].members; });
+    }
+    if (parsed.manuscripts) {
+      Object.keys(parsed.manuscripts).forEach(key => {
+        DEFAULT_M[key] = parsed.manuscripts[key];
+      });
+    }
+  } catch(e) {
+    console.warn('불러오기 실패, 빈 상태로 시작:', e);
+  } finally {
+    showLoadingOverlay(false);
+  }
+}
+
+async function saveData() {
+  const manuscripts = {};
+  Object.keys(M).forEach(k => { manuscripts[k] = {team: M[k].team, items: M[k].items}; });
+  const data = JSON.stringify({ teams: TEAMS, manuscripts });
+  try {
+    await jsonp(GAS_URL + '?action=save&user=HS&data=' + encodeURIComponent(data));
+    showToast('✓ 저장되었습니다');
+  } catch(e) {
+    showToast('⚠️ 저장 실패 — 네트워크를 확인해주세요');
+  }
+}
+
+function showLoadingOverlay(show) {
+  let el = document.getElementById('loading-overlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loading-overlay';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;z-index:9999;font-size:14px;font-weight:600;color:#4a5568;font-family:Pretendard,sans-serif;';
+    el.textContent = '데이터 불러오는 중...';
+    document.body.appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
+}
+
+function renderTeamToggle() {
+  const toggle = document.getElementById('team-toggle');
+  toggle.innerHTML = Object.keys(TEAMS).map(team => {
+    const c = getTeamColor(team);
+    const isActive = team === curTeam;
+    return `<button class="team-btn${isActive?' active':''}"
+      style="${isActive?`background:white;color:${c.main};box-shadow:0 1px 3px rgba(0,0,0,.1);`:''}"
+      onclick="switchTeam('${team}',this)"
+      oncontextmenu="event.preventDefault();openDelTeamModal('${team}')"
+      title="${team} (우클릭: 팀 삭제)">${team}</button>`;
+  }).join('');
+  document.getElementById('header-count').textContent =
+    `총 ${Object.keys(M).length}개 원고 · ${Object.keys(TEAMS).length}개 팀`;
+}
+
+function renderStatsTeamBar() {
+  const bar = document.getElementById('stats-team-bar');
+  bar.innerHTML = Object.keys(TEAMS).map(team => {
+    const c = getTeamColor(team);
+    const isActive = team === stTeam;
+    return `<button class="st-btn${isActive?' active':''}"
+      style="${isActive?`background:${c.bg};color:${c.main};border-color:${c.border};`:''}"
+      onclick="switchStatsTeam('${team}',this)">${team} 팀</button>`;
+  }).join('');
+}
+
+/* ═══════════════════
+   원고 뷰
+═══════════════════ */
+function switchTeam(team, btn) {
+  if (statsMode) return;
+  curTeam = team;
+  renderTeamToggle();
+  buildChips(team);
+  const first = Object.keys(M).find(k=>M[k].team===team);
+  if (first) showManu(first);
+  else document.getElementById('manu-panel').innerHTML =
+    `<div class="empty-note">📋 원고가 없습니다. + 원고 추가 버튼으로 추가해주세요.</div>`;
+}
+
+function buildChips(team) {
+  const c = getTeamColor(team);
+  document.getElementById('chip-label').textContent = team + ' 담당 원고';
+  const row = document.getElementById('chip-row');
+  row.innerHTML = '';
+  Object.keys(M).filter(k=>M[k].team===team).forEach(key=>{
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.id = `chip-${key}`;
+    b.textContent = key;
+    b.style.cssText = curManu===key
+      ? `background:${c.bg};border-color:${c.border};color:${c.main};font-weight:700;`
+      : '';
+    b.onclick = ()=>showManu(key);
+    row.appendChild(b);
+  });
+  const addBtn = document.createElement('button');
+  addBtn.className = 'chip-add-btn';
+  addBtn.style.cssText = `--add-color:${c.main};`;
+  addBtn.innerHTML = '+ 원고 추가';
+  addBtn.onclick = ()=>openAddModal(team);
+  row.appendChild(addBtn);
+}
+
+function cntBadge(n,g) {
+  return n>0 ? `<span class="cnt cnt${g}">${n}</span>` : `<span class="cnt cnt0">0</span>`;
+}
+
+function showManu(key) {
+  curManu = key;
+  // 칩 active 스타일 업데이트
+  const team = M[key]?.team;
+  const c = getTeamColor(team||curTeam);
+  document.querySelectorAll('.chip').forEach(chip => {
+    const isActive = chip.id === `chip-${key}`;
+    chip.style.cssText = isActive
+      ? `background:${c.bg};border-color:${c.border};color:${c.main};font-weight:700;`
+      : '';
+  });
+
+  const d = M[key];
+  const teamColor = getTeamColor(d.team);
+  const filled = d.items.filter(i=>i.p&&i.g);
+  const hasData = filled.length>0;
+  const totalFee = filled.reduce((s,i)=>s+(FEE[i.g]||0),0);
+
+  const rows = d.items.map(i=>{
+    if (!i.p||!i.g) return `
+      <tr><td class="col-q">${i.q}</td><td class="f0">—</td>
+      <td><span class="g0">미배정</span></td><td class="f0">—</td></tr>`;
+    return `
+      <tr><td class="col-q">${i.q}</td><td class="col-name">${i.p}</td>
+      <td><span class="grade g${i.g}">${i.g}</span></td>
+      <td class="f${i.g}">${FEE[i.g]}만원</td></tr>`;
+  }).join('');
+
+  const tfoot = hasData ? `
+    <tfoot>
+      <tr style="background:${teamColor.bg};">
+        <td></td>
+        <td></td>
+        <td style="font-size:11px;font-weight:500;color:var(--text-muted);text-align:right;">합계</td>
+        <td style="font-weight:700;color:${teamColor.main};text-align:center;">${totalFee}만원</td>
+      </tr>
+    </tfoot>` : '';
+
+  const pm = {};
+  filled.forEach(i=>{
+    if (!pm[i.p]) pm[i.p]={R:0,S:0,A:0,B:0};
+    pm[i.p][i.g]++;
+  });
+
+  let summaryBlock = '';
+  if (Object.keys(pm).length>0) {
+    const sumRows = Object.entries(pm).map(([name,cnt])=>{
+      const fee = cnt.R*30+cnt.S*20+cnt.A*10+cnt.B*5;
+      return `<tr>
+        <td style="text-align:left;font-weight:600;">${name}</td>
+        <td>${cntBadge(cnt.R,'R')}</td><td>${cntBadge(cnt.S,'S')}</td>
+        <td>${cntBadge(cnt.A,'A')}</td><td>${cntBadge(cnt.B,'B')}</td>
+        <td style="font-weight:700;color:${teamColor.main};">${fee}만원</td>
+      </tr>`;
+    }).join('');
+    summaryBlock = `
+      <div class="sub-title" style="--bar-color:${teamColor.main};">출제자별 합계</div>
+      <div class="card mb20">
+        <table style="width:100%;table-layout:fixed;">
+          <colgroup>
+            <col style="width:24%;">
+            <col style="width:13%;">
+            <col style="width:13%;">
+            <col style="width:13%;">
+            <col style="width:13%;">
+            <col style="width:24%;">
+          </colgroup>
+          <thead><tr style="background:${teamColor.bg};">
+            <th style="text-align:left;color:${teamColor.main};">성명</th>
+            <th style="color:${teamColor.main};">R×30</th>
+            <th style="color:${teamColor.main};">S×20</th>
+            <th style="color:${teamColor.main};">A×10</th>
+            <th style="color:${teamColor.main};">B×5</th>
+            <th style="color:${teamColor.main};">합계</th>
+          </tr></thead>
+          <tbody>${sumRows}</tbody>
+          <tfoot>
+            <tr style="background:${teamColor.bg};border-top:2px solid ${teamColor.border};">
+              <td style="font-size:11px;font-weight:500;color:var(--text-muted);text-align:right;" colspan="5">원고 ${key} 합계</td>
+              <td style="font-weight:700;color:${teamColor.main};text-align:center;">${totalFee}만원</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>`;
+  } else {
+    summaryBlock = `<div class="empty-note">📋 편집 버튼을 눌러 출제자와 등급을 입력해주세요.</div>`;
+  }
+
+  const badge = hasData
+    ? `<div class="total-badge" style="margin-left:auto;">합계 <strong style="color:${teamColor.main};">${totalFee}만원</strong></div>` : '';
+
+  document.getElementById('manu-panel').innerHTML = `
+    <div class="fade-in">
+      <div class="card mb20">
+        <div class="section-header">
+          <h2>원고 ${key}</h2>
+          <span class="team-tag" style="background:${teamColor.bg};color:${teamColor.main};border-color:${teamColor.border};">${d.team}</span>
+          ${badge}
+          <button class="edit-btn" onclick="openModal('${key}')">✏️ 편집</button>
+          <button class="del-btn" onclick="openDelModal('${key}')">🗑️ 원고 삭제하기</button>
+          <button class="pum-btn" onclick="openPumModal('${key}')">📋 품의서</button>
+        </div>
+        <table style="width:100%;table-layout:fixed;">
+          <colgroup>
+            <col style="width:14%;">
+            <col style="width:30%;">
+            <col style="width:22%;">
+            <col style="width:34%;">
+          </colgroup>
+          <thead><tr>
+            <th style="text-align:left;">문항</th>
+            <th style="text-align:left;">출제자</th>
+            <th>등급</th>
+            <th>출제료</th>
+          </tr></thead>
+          <tbody>${d.items.map(i=>{
+            if (!i.p||!i.g) return `<tr><td class="col-q">${i.q}</td><td class="f0">—</td><td><span class="g0">미배정</span></td><td class="f0">—</td></tr>`;
+            return `<tr><td class="col-q">${i.q}</td><td class="col-name">${i.p}</td><td><span class="grade g${i.g}">${i.g}</span></td><td class="f${i.g}">${FEE[i.g]}만원</td></tr>`;
+          }).join('')}</tbody>
+          ${tfoot}
+        </table>
+      </div>
+      ${summaryBlock}
+    </div>`;
+}
+
+/* ═══════════════════
+   팀 추가/삭제
+═══════════════════ */
+function openAddTeamModal() {
+  document.getElementById('add-team-name').value = '';
+  document.getElementById('add-team-members').value = '';
+  document.getElementById('add-team-modal-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('add-team-name').focus(), 200);
+}
+function closeAddTeamModal(e) {
+  if (e.target===document.getElementById('add-team-modal-overlay')) closeAddTeamModalDirect();
+}
+function closeAddTeamModalDirect() {
+  document.getElementById('add-team-modal-overlay').classList.remove('open');
+}
+function confirmAddTeam() {
+  const name = document.getElementById('add-team-name').value.trim().toUpperCase();
+  const membersRaw = document.getElementById('add-team-members').value.trim();
+  if (!name) { showToast('⚠️ 팀명을 입력해주세요'); return; }
+  if (TEAMS[name]) { showToast(`⚠️ '${name}' 팀이 이미 존재합니다`); return; }
+  const members = membersRaw ? membersRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+  TEAMS[name] = { members };
+  MEMBERS[name] = members;
+  saveData();
+  closeAddTeamModalDirect();
+  renderTeamToggle();
+  switchTeam(name, null);
+  showToast(`✓ ${name} 팀이 추가되었습니다 (과목: ${getSubjectByTeam(name)})`);
+}
+
+let deletingTeam = null;
+function openDelTeamModal(team) {
+  deletingTeam = team;
+  const manuCount = Object.keys(M).filter(k=>M[k].team===team).length;
+  document.getElementById('del-team-msg').textContent =
+    `'${team}' 팀을 삭제할까요? 해당 팀 원고 ${manuCount}개가 함께 삭제됩니다.`;
+  document.getElementById('del-team-modal-overlay').classList.add('open');
+}
+function closeDelTeamModal(e) {
+  if (e.target===document.getElementById('del-team-modal-overlay')) closeDelTeamModalDirect();
+}
+function closeDelTeamModalDirect() {
+  document.getElementById('del-team-modal-overlay').classList.remove('open');
+}
+function confirmDelTeam() {
+  if (!deletingTeam) return;
+  // 해당 팀 원고 모두 삭제
+  Object.keys(M).filter(k=>M[k].team===deletingTeam).forEach(k=>delete M[k]);
+  delete TEAMS[deletingTeam];
+  delete MEMBERS[deletingTeam];
+  saveData();
+  closeDelTeamModalDirect();
+  const nextTeam = Object.keys(TEAMS)[0];
+  if (nextTeam) {
+    curTeam = nextTeam;
+    renderTeamToggle();
+    buildChips(nextTeam);
+    const first = Object.keys(M).find(k=>M[k].team===nextTeam);
+    if (first) showManu(first);
+  } else {
+    renderTeamToggle();
+    document.getElementById('chip-row').innerHTML = '';
+    document.getElementById('manu-panel').innerHTML = `<div class="empty-note">📋 팀을 먼저 추가해주세요.</div>`;
+  }
+  showToast(`🗑️ ${deletingTeam} 팀이 삭제되었습니다`);
+  deletingTeam = null;
+}
+
+/* ═══════════════════
+   원고 추가
+═══════════════════ */
+let addTeamSel = 'CS11';
+
+function openAddModal(team) {
+  addTeamSel = team;
+  document.getElementById('add-manu-name').value = '';
+  document.getElementById('add-team-field').style.display = 'none';
+  document.getElementById('add-modal-title').textContent = `${team} — 원고 추가`;
+  document.getElementById('btn-add-save').className = 'btn-save';
+  document.getElementById('btn-add-save').style.background = getTeamColor(team).main;
+  document.getElementById('add-modal-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('add-manu-name').focus(), 200);
+}
+
+function closeAddModal(e) {
+  if (e.target===document.getElementById('add-modal-overlay')) closeAddModalDirect();
+}
+function closeAddModalDirect() {
+  document.getElementById('add-modal-overlay').classList.remove('open');
+}
+
+function confirmAddManu() {
+  const raw = document.getElementById('add-manu-name').value.trim().toUpperCase();
+  const count = parseInt(document.getElementById('add-manu-count').value);
+
+  if (!raw) { showToast('⚠️ 원고명을 입력해주세요'); return; }
+  if (M[raw]) { showToast(`⚠️ '${raw}' 원고가 이미 존재합니다`); return; }
+
+  M[raw] = {
+    team: addTeamSel,
+    items: Array.from({length: count}, (_,i) => ({q:`${i+1}번`, p:'', g:''}))
+  };
+
+  saveData();
+  closeAddModalDirect();
+  buildChips(addTeamSel);
+  showManu(raw);
+  showToast(`✓ 원고 ${raw} 추가되었습니다`);
+}
+
+/* ═══════════════════
+   원고 삭제
+═══════════════════ */
+let deletingKey = null;
+
+function openDelModal(key) {
+  deletingKey = key;
+  document.getElementById('del-modal-msg').textContent =
+    `'${key}' 원고를 삭제할까요?`;
+  document.getElementById('del-modal-overlay').classList.add('open');
+}
+
+function closeDelModal(e) {
+  if (e.target===document.getElementById('del-modal-overlay')) closeDelModalDirect();
+}
+function closeDelModalDirect() {
+  document.getElementById('del-modal-overlay').classList.remove('open');
+}
+
+function confirmDelManu() {
+  if (!deletingKey || !M[deletingKey]) return;
+  const team = M[deletingKey].team;
+  delete M[deletingKey];
+  saveData();
+  closeDelModalDirect();
+  buildChips(team);
+  // 같은 팀의 첫 원고로 이동
+  const next = Object.keys(M).find(k=>M[k].team===team);
+  if (next) showManu(next);
+  else document.getElementById('manu-panel').innerHTML =
+    `<div class="empty-note">📋 원고가 없습니다. 위 + 버튼으로 추가해주세요.</div>`;
+  showToast(`🗑️ 원고 ${deletingKey} 삭제되었습니다`);
+  deletingKey = null;
+}
+
+/* ═══════════════════
+   편집 모달
+═══════════════════ */
+let editingKey = null;
+
+function openModal(key) {
+  editingKey = key;
+  const d = M[key];
+  const is12 = d.team === 'CS12';
+  const tc = d.team.toLowerCase();
+  const members = (TEAMS[d.team]?.members) || [];
+
+  document.getElementById('modal-title').textContent = `원고 ${key} 편집`;
+  const saveBtn = document.getElementById('btn-save');
+  saveBtn.className = `btn-save${is12?' t12':''}`;
+
+  // 문항별 입력 행 생성
+  const rows = d.items.map((item, idx) => {
+    const memberOptions = members.map(m =>
+      `<option value="${m}" ${item.p===m?'selected':''}>${m}</option>`
+    ).join('');
+
+    const grades = ['R','S','A','B',''];
+    const gradeLabels = {R:'R',S:'S',A:'A',B:'B','':'—'};
+    const radios = grades.map(g => {
+      const gid = `g_${idx}_${g||'none'}`;
+      const checked = item.g===g ? 'checked' : '';
+      const selClass = item.g===g && g ? `sel-${g}` : (!g && !item.g ? 'sel-none' : '');
+      return `<input type="radio" name="grade_${idx}" id="${gid}" value="${g}" ${checked}>
+              <label for="${gid}" class="${selClass}">${gradeLabels[g]}</label>`;
+    }).join('');
+
+    return `
+      <div class="edit-row">
+        <span class="edit-row-label">${item.q}</span>
+        <select class="edit-input" id="p_${idx}">
+          <option value="">— 미배정 —</option>
+          ${memberOptions}
+        </select>
+        <div class="grade-radio-group" id="gr_${idx}">${radios}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('modal-body').innerHTML = `
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">
+      출제자를 선택하고 등급을 지정해주세요. 미배정은 선택 없이 두면 됩니다.
+    </div>
+    ${rows}`;
+
+  // 라디오 레이블 색상 동적 업데이트
+  d.items.forEach((_, idx) => {
+    const grp = document.getElementById(`gr_${idx}`);
+    grp.querySelectorAll('input[type=radio]').forEach(radio => {
+      radio.addEventListener('change', () => updateGradeLabels(idx));
+    });
+  });
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function updateGradeLabels(idx) {
+  const grp = document.getElementById(`gr_${idx}`);
+  const checked = grp.querySelector('input:checked');
+  const val = checked ? checked.value : '';
+  grp.querySelectorAll('label').forEach(lbl => {
+    lbl.className = '';
+    const radio = document.getElementById(lbl.htmlFor);
+    if (radio && radio.checked) {
+      lbl.className = val ? `sel-${val}` : 'sel-none';
+    }
+  });
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function saveModal() {
+  const d = M[editingKey];
+  d.items.forEach((item, idx) => {
+    const pSel = document.getElementById(`p_${idx}`);
+    const gSel = document.querySelector(`input[name="grade_${idx}"]:checked`);
+    item.p = pSel ? pSel.value : '';
+    item.g = gSel ? gSel.value : '';
+    // 출제자 없으면 등급도 초기화
+    if (!item.p) item.g = '';
+  });
+
+  saveData();
+  closeModalDirect();
+  showManu(editingKey);
+  showToast('저장되었습니다 ✓');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ═══════════════════
+   품의서 모달
+═══════════════════ */
+function openPumModal(key) {
+  const d = M[key];
+  const filled = d.items.filter(i=>i.p&&i.g);
+
+  if (!filled.length) {
+    showToast('⚠️ 입력된 출제 데이터가 없습니다');
+    return;
+  }
+
+  document.getElementById('pum-modal-title').textContent = `📋 ${key} 품의서 항목`;
+  document.getElementById('pum-copy-btn').textContent = '📋 표 복사하기';
+  document.getElementById('pum-copy-btn').classList.remove('copied');
+
+  // 출제자별 집계
+  const pm = {};
+  filled.forEach(i=>{
+    if (!pm[i.p]) pm[i.p]={R:0,S:0,A:0,B:0};
+    pm[i.p][i.g]++;
+  });
+
+  // 팀명 첫 글자로 과목 결정
+  const subject = getSubjectByTeam(d.team);
+
+  const rows = Object.entries(pm).map(([name, c])=>{
+    const fee = c.R*30 + c.S*20 + c.A*10 + c.B*5;
+    // 등급별 내용 텍스트: "R 1문항, B 1문항" 형태
+    const gradeDesc = ['R','S','A','B']
+      .filter(g=>c[g]>0)
+      .map(g=>`${g} ${c[g]}문항`)
+      .join(', ');
+    const content = `${key} ${subject} 문항 추가 출제료\n(${gradeDesc})`;
+    const feeNum = fee * 10000; // 원 단위
+
+    return { name, team: d.team, content, fee: feeNum };
+  });
+
+  // tbody 렌더링 — 체크박스 포함, 기본 전체 체크
+  const tbody = document.getElementById('pum-tbody');
+  tbody.innerHTML = rows.map((r, idx)=>`
+    <tr id="pum-row-${idx}" style="cursor:pointer;" onclick="togglePumRow(${idx})">
+      <td style="text-align:center;" onclick="event.stopPropagation();">
+        <input type="checkbox" id="pum-cb-${idx}" checked onchange="updatePumCount()" style="cursor:pointer;width:15px;height:15px;">
+      </td>
+      <td>${r.name}</td>
+      <td>${r.team}</td>
+      <td>27통합과학</td>
+      <td class="td-desc" style="white-space:pre-line;">${r.content}</td>
+      <td class="td-fee">${r.fee.toLocaleString()}</td>
+    </tr>`).join('');
+
+  document.getElementById('pum-check-all').checked = true;
+  updatePumCount();
+  document.getElementById('pum-modal-overlay').classList.add('open');
+}
+
+function closePumModal(e) {
+  if (e.target===document.getElementById('pum-modal-overlay')) closePumModalDirect();
+}
+function closePumModalDirect() {
+  document.getElementById('pum-modal-overlay').classList.remove('open');
+}
+
+function togglePumRow(idx) {
+  const cb = document.getElementById(`pum-cb-${idx}`);
+  cb.checked = !cb.checked;
+  updatePumCount();
+}
+
+function toggleAllPumChecks(masterCb) {
+  document.querySelectorAll('#pum-tbody input[type=checkbox]').forEach(cb => {
+    cb.checked = masterCb.checked;
+  });
+  updatePumCount();
+}
+
+function updatePumCount() {
+  const all = document.querySelectorAll('#pum-tbody input[type=checkbox]');
+  const checked = [...all].filter(cb=>cb.checked).length;
+  const countEl = document.getElementById('pum-check-count');
+  if (countEl) countEl.textContent = `${checked} / ${all.length}행 선택됨`;
+  // 전체선택 체크박스 상태 동기화
+  const master = document.getElementById('pum-check-all');
+  if (master) master.checked = checked === all.length && all.length > 0;
+  // 복사 버튼 활성/비활성
+  const copyBtn = document.getElementById('pum-copy-btn');
+  if (copyBtn) copyBtn.style.opacity = checked > 0 ? '1' : '0.45';
+}
+
+function copyPumTable() {
+  const rows = document.querySelectorAll('#pum-tbody tr');
+  const lines = [];
+  rows.forEach((row, idx) => {
+    const cb = document.getElementById(`pum-cb-${idx}`);
+    if (!cb || !cb.checked) return;
+    const cells = Array.from(row.querySelectorAll('td')).slice(1).map(td => {
+      // innerText로 줄바꿈 포함 텍스트 추출
+      let val = td.innerText.trim();
+      // 줄바꿈이 있으면 엑셀 셀 내 줄바꿈 규격: 큰따옴표로 감싸고 \n 유지
+      if (val.includes('\n')) {
+        val = '"' + val.replace(/"/g, '""') + '"';
+      }
+      return val;
+    });
+    lines.push(cells.join('\t'));
+  });
+
+  if (!lines.length) { showToast('⚠️ 선택된 행이 없습니다'); return; }
+
+  const text = lines.join('\n');
+
+  // textarea 임시 생성 후 execCommand로 복사
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+
+  try {
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (ok) {
+      const btn = document.getElementById('pum-copy-btn');
+      btn.textContent = '✓ 복사 완료!';
+      btn.classList.add('copied');
+      showToast(`✓ ${lines.length}행 복사 완료! 엑셀에 붙여넣기 하세요.`);
+      setTimeout(()=>{ btn.textContent='📋 선택 행 복사'; btn.classList.remove('copied'); }, 2500);
+    } else {
+      showToast('⚠️ 복사 실패 — 표를 직접 선택 후 Ctrl+C 해주세요');
+    }
+  } catch(e) {
+    document.body.removeChild(ta);
+    showToast('⚠️ 복사 실패 — 표를 직접 선택 후 Ctrl+C 해주세요');
+  }
+}
+
+/* ═══════════════════
+   탭 전환
+═══════════════════ */
+function showTab(tab) {
+  statsMode = tab === 'stats';
+  document.getElementById('manu-view').style.display = statsMode ? 'none' : 'block';
+  document.getElementById('stats-view').classList.toggle('visible', statsMode);
+  document.getElementById('chip-nav').classList.toggle('hidden', statsMode);
+  const tt = document.getElementById('team-toggle');
+  tt.style.opacity = statsMode ? '0.4' : '1';
+  tt.style.pointerEvents = statsMode ? 'none' : '';
+  // 탭 버튼 active 스타일
+  document.getElementById('tab-manu').classList.toggle('active', !statsMode);
+  document.getElementById('tab-stats').classList.toggle('active', statsMode);
+  document.getElementById('tab-manu').style.cssText = !statsMode ? 'background:white;color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,.1);' : '';
+  document.getElementById('tab-stats').style.cssText = statsMode ? 'background:white;color:var(--green);box-shadow:0 1px 3px rgba(0,0,0,.1);' : '';
+  if (statsMode) { renderStatsTeamBar(); renderStats(stTeam); }
+}
+
+function switchStatsTeam(team, btn) {
+  stTeam = team;
+  renderStatsTeamBar();
+  renderStats(team);
+}
+
+function calcStats(team) {
+  const res = {};
+  (TEAMS[team]?.members||[]).forEach(name => { res[name]={name,R:0,S:0,A:0,B:0,total:0,fee:0}; });
+  Object.values(M).filter(m=>m.team===team).forEach(manu=>{
+    manu.items.filter(i=>i.p&&i.g).forEach(i=>{
+      if (!res[i.p]) res[i.p]={name:i.p,R:0,S:0,A:0,B:0,total:0,fee:0};
+      res[i.p][i.g]++;
+      res[i.p].total++;
+      res[i.p].fee+=FEE[i.g];
+    });
+  });
+  return Object.values(res);
+}
+
+function renderStats(team) {
+  const c = getTeamColor(team);
+  const stats = calcStats(team);
+  const sorted = [...stats].sort((a,b)=>b.fee-a.fee);
+
+  const cards = stats.map(s=>{
+    const noData = s.total===0;
+    const t = s.total||1;
+    const bR=(s.R/t*100).toFixed(1), bS=(s.S/t*100).toFixed(1);
+    const bA=(s.A/t*100).toFixed(1), bB=(s.B/t*100).toFixed(1);
+    const bestG = noData?null:(s.R>0?'R':s.S>0?'S':s.A>0?'A':'B');
+    const pills = noData ? `<span class="gpill gpNone">데이터 없음</span>`
+      : ['R','S','A','B'].filter(g=>s[g]>0).map(g=>`<span class="gpill gp${g}">${g} <strong>${s[g]}</strong></span>`).join('');
+    const bar = noData?'': `
+      <div class="ratio-bar-wrap">
+        <div class="ratio-label">등급 비율</div>
+        <div class="ratio-bar">
+          <div class="rb-R" style="width:${bR}%;flex-shrink:0;"></div>
+          <div class="rb-S" style="width:${bS}%;flex-shrink:0;"></div>
+          <div class="rb-A" style="width:${bA}%;flex-shrink:0;"></div>
+          <div class="rb-B" style="width:${bB}%;flex-shrink:0;"></div>
+        </div>
+      </div>`;
+    const feeHtml = s.fee>0
+      ? `<span class="pc-fee" style="color:${c.main};">${s.fee}만원</span>`
+      : `<span class="pc-fee none">미집계</span>`;
+    return `
+      <div class="person-card">
+        <div class="pc-head">
+          <div>
+            <div class="pc-name">${s.name}</div>
+            <div class="pc-sub">최고등급 ${bestG?`<span class="grade g${bestG}" style="font-size:11px;padding:1px 6px;">${bestG}</span>`:'—'}</div>
+          </div>
+          <span class="team-tag" style="background:${c.bg};color:${c.main};border-color:${c.border};">${team}</span>
+        </div>
+        <div class="pc-body">
+          <div class="pc-row">
+            <span class="pc-label">총 출제 문항</span>
+            <span class="pc-val">${s.total}문항</span>
+          </div>
+          <div>
+            <div class="pc-label" style="margin-bottom:6px;">등급별 채택 수</div>
+            <div class="grade-pills">${pills||'<span class="gpill gpNone">—</span>'}</div>
+          </div>
+          ${bar}
+        </div>
+        <div class="pc-foot">
+          <span class="pc-foot-label">누적 출제료</span>
+          ${feeHtml}
+        </div>
+      </div>`;
+  }).join('');
+
+  const withData = sorted.filter(s=>s.total>0);
+  const tableRows = withData.length>0
+    ? withData.map((s,i)=>{
+        const rnc = i===0?'n1':i===1?'n2':i===2?'n3':'';
+        const rsRate = Math.round((s.R+s.S)/s.total*100);
+        return `<tr>
+          <td style="text-align:center;"><span class="rank-num ${rnc}">${i+1}</span></td>
+          <td style="font-weight:700;">${s.name}</td>
+          <td style="text-align:center;">${s.total}</td>
+          <td style="text-align:center;">
+            ${['R','S','A','B'].filter(g=>s[g]>0).map(g=>`<span class="cnt cnt${g}" style="margin:1px;">${s[g]}</span>`).join('')}
+          </td>
+          <td style="text-align:center;" class="fee-cell" style="color:${c.main};">${s.fee}만원</td>
+          <td style="text-align:center;" class="${rsRate>=50?'rs-high':'rs-low'}">${rsRate}%</td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">📋 아직 입력된 데이터가 없습니다</td></tr>`;
+
+  document.getElementById('stats-content').innerHTML = `
+    <div class="fade-in">
+      <div class="person-grid">${cards}</div>
+      <div class="rank-title">출제료 순위 요약</div>
+      <div class="card rank-card">
+        <table>
+          <thead><tr>
+            <th>순위</th><th style="text-align:left;">성명</th>
+            <th>총 문항</th><th>등급 내역</th><th>누적 출제료</th><th>R+S 비율</th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════
+   초기화
+═══════════════════ */
+loadData().then(() => {
+  renderTeamToggle();
+  if (Object.keys(TEAMS).length > 0) {
+    curTeam = Object.keys(TEAMS)[0];
+    stTeam = curTeam;
+    buildChips(curTeam);
+    const firstKey = Object.keys(M).find(k=>M[k].team===curTeam);
+    if (firstKey) showManu(firstKey);
+    else document.getElementById('manu-panel').innerHTML =
+      `<div class="empty-note">📋 원고가 없습니다. + 원고 추가 버튼으로 추가해주세요.</div>`;
+  } else {
+    document.getElementById('manu-panel').innerHTML =
+      `<div class="empty-note" style="padding:60px 20px;">
+        <span style="font-size:2rem;display:block;margin-bottom:12px;">👋</span>
+        헤더의 <strong>+ 팀 추가</strong> 버튼으로 팀을 먼저 만들어주세요!
+      </div>`;
+  }
+});
+</script>
+</body>
+</html>
