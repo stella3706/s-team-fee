@@ -566,20 +566,28 @@ let stTeam = '';
 /* ═══════════════════
    Google Sheets 연동
 ═══════════════════ */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxU_RAXhwj3r3irn8gEMalQrWDJXTmrSQJMPvLYz8hW4wbgmLr36SFcRsMNEt3acom1/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxxdtpz4gkPZBFxYUodrPk5JLhjiEJKnb9T860h8qXrW9Z0J05InygCUXUPw9fHgF7h/exec';
 
 function jsonp(url) {
   return new Promise((resolve, reject) => {
     const cbName = '_cb_' + Date.now();
     const script = document.createElement('script');
-    window[cbName] = (data) => {
+    // 15초 타임아웃
+    const timer = setTimeout(() => {
       delete window[cbName];
-      document.body.removeChild(script);
+      if (document.body.contains(script)) document.body.removeChild(script);
+      reject(new Error('JSONP 타임아웃'));
+    }, 15000);
+    window[cbName] = (data) => {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (document.body.contains(script)) document.body.removeChild(script);
       resolve(data);
     };
     script.onerror = () => {
+      clearTimeout(timer);
       delete window[cbName];
-      document.body.removeChild(script);
+      if (document.body.contains(script)) document.body.removeChild(script);
       reject(new Error('JSONP 실패'));
     };
     script.src = url + '&callback=' + cbName;
@@ -612,15 +620,22 @@ async function loadData() {
   }
 }
 
-async function saveData() {
+async function saveData(retry = 0) {
   const manuscripts = {};
   Object.keys(M).forEach(k => { manuscripts[k] = {team: M[k].team, items: M[k].items}; });
-  const data = JSON.stringify({ teams: TEAMS, manuscripts, order: ORDER });
+  const payload = { user: 'HR', data: { teams: TEAMS, manuscripts, order: ORDER } };
   try {
-    await jsonp(GAS_URL + '?action=save&user=HR&data=' + encodeURIComponent(data));
-    showToast('✓ 저장되었습니다');
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (json.ok) showToast('✓ 저장되었습니다');
+    else throw new Error(json.error);
   } catch(e) {
-    showToast('⚠️ 저장 실패 — 네트워크를 확인해주세요');
+    if (retry < 3) {
+      setTimeout(() => saveData(retry + 1), 2000);
+    }
   }
 }
 
