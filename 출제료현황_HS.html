@@ -405,6 +405,38 @@ tfoot.t12 td{color:var(--cs12);}
 <!-- 토스트 -->
 <div class="toast" id="toast">저장되었습니다 ✓</div>
 
+<!-- ══ 팀 우클릭 컨텍스트 메뉴 ══ -->
+<div id="team-ctx-menu" style="display:none;position:fixed;z-index:500;background:var(--white);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;min-width:140px;">
+  <div id="team-ctx-name" style="padding:8px 14px;font-size:11px;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);"></div>
+  <button onclick="openEditTeamModal(ctxTeam)" style="width:100%;padding:9px 14px;border:none;background:transparent;text-align:left;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;color:var(--text-primary);" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">✏️ 팀 편집</button>
+  <button onclick="openDelTeamModal(ctxTeam)" style="width:100%;padding:9px 14px;border:none;background:transparent;text-align:left;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;color:var(--gR);" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">🗑️ 팀 삭제</button>
+</div>
+
+<!-- ══ 팀 편집 모달 ══ -->
+<div class="modal-overlay" id="edit-team-modal-overlay" onclick="closeEditTeamModal(event)">
+  <div class="modal" style="width:400px;">
+    <div class="modal-head">
+      <h3 id="edit-team-modal-title">팀 편집</h3>
+      <button class="modal-close" onclick="closeEditTeamModalDirect()">✕</button>
+    </div>
+    <div class="add-modal-body">
+      <div class="add-field">
+        <label>팀명</label>
+        <input type="text" id="edit-team-name" maxlength="10">
+      </div>
+      <div class="add-field">
+        <label>팀원</label>
+        <div id="edit-member-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+        <button onclick="addMemberField()" style="width:100%;padding:7px;border:1.5px dashed var(--border2);border-radius:7px;background:transparent;font-family:inherit;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;" onmouseover="this.style.borderColor='var(--cs11)';this.style.color='var(--cs11)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text-muted)'">+ 팀원 추가</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeEditTeamModalDirect()">취소</button>
+      <button class="btn-save" onclick="confirmEditTeam()">저장</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ 원고 추가 모달 ══ -->
 <div class="modal-overlay" id="add-modal-overlay" onclick="closeAddModal(event)">
   <div class="modal" id="add-modal" style="width:360px;">
@@ -609,8 +641,8 @@ function renderTeamToggle() {
     return `<button class="team-btn${isActive?' active':''}"
       style="${isActive?`background:white;color:${c.main};box-shadow:0 1px 3px rgba(0,0,0,.1);`:''}"
       onclick="switchTeam('${team}',this)"
-      oncontextmenu="event.preventDefault();openDelTeamModal('${team}')"
-      title="${team} (우클릭: 팀 삭제)">${team}</button>`;
+      oncontextmenu="event.preventDefault();showTeamCtxMenu(event,'${team}')"
+      title="${team} (우클릭: 편집/삭제)">${team}</button>`;
   }).join('');
   document.getElementById('header-count').textContent =
     `총 ${Object.keys(M).length}개 원고 · ${Object.keys(TEAMS).length}개 팀`;
@@ -796,8 +828,96 @@ function showManu(key) {
 }
 
 /* ═══════════════════
-   팀 추가/삭제
+   팀 컨텍스트 메뉴
 ═══════════════════ */
+let ctxTeam = null;
+
+function showTeamCtxMenu(e, team) {
+  ctxTeam = team;
+  const menu = document.getElementById('team-ctx-menu');
+  document.getElementById('team-ctx-name').textContent = team;
+  menu.style.display = 'block';
+  // 화면 밖으로 나가지 않게 위치 조정
+  const x = Math.min(e.clientX, window.innerWidth - 160);
+  const y = Math.min(e.clientY, window.innerHeight - 110);
+  menu.style.left = x + 'px';
+  menu.style.top = y + 'px';
+  setTimeout(() => document.addEventListener('click', hideTeamCtxMenu, {once:true}), 50);
+}
+
+function hideTeamCtxMenu() {
+  document.getElementById('team-ctx-menu').style.display = 'none';
+}
+
+/* ═══════════════════
+   팀 편집
+═══════════════════ */
+let editingTeam = null;
+
+function openEditTeamModal(team) {
+  hideTeamCtxMenu();
+  editingTeam = team;
+  document.getElementById('edit-team-modal-title').textContent = `${team} 편집`;
+  document.getElementById('edit-team-name').value = team;
+
+  // 팀원 목록 렌더링
+  const list = document.getElementById('edit-member-list');
+  list.innerHTML = '';
+  (TEAMS[team]?.members || []).forEach(name => addMemberField(name));
+
+  document.getElementById('edit-team-modal-overlay').classList.add('open');
+}
+
+function addMemberField(name = '') {
+  const list = document.getElementById('edit-member-list');
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:6px;align-items:center;';
+  div.innerHTML = `
+    <input type="text" value="${name}" placeholder="팀원 이름" class="edit-input" style="flex:1;">
+    <button onclick="this.parentElement.remove()" style="padding:6px 10px;border:1px solid var(--gR-bd);border-radius:7px;background:var(--gR-bg);color:var(--gR);cursor:pointer;font-size:12px;font-weight:700;">✕</button>`;
+  list.appendChild(div);
+  div.querySelector('input').focus();
+}
+
+function closeEditTeamModal(e) {
+  if (e.target === document.getElementById('edit-team-modal-overlay')) closeEditTeamModalDirect();
+}
+function closeEditTeamModalDirect() {
+  document.getElementById('edit-team-modal-overlay').classList.remove('open');
+}
+
+function confirmEditTeam() {
+  const newName = document.getElementById('edit-team-name').value.trim().toUpperCase();
+  if (!newName) { showToast('⚠️ 팀명을 입력해주세요'); return; }
+  if (newName !== editingTeam && TEAMS[newName]) { showToast(`⚠️ '${newName}' 팀이 이미 존재합니다`); return; }
+
+  const members = Array.from(document.querySelectorAll('#edit-member-list input'))
+    .map(i => i.value.trim()).filter(Boolean);
+
+  // 팀명 변경 시 원고 팀명도 업데이트
+  if (newName !== editingTeam) {
+    Object.keys(M).forEach(k => {
+      if (M[k].team === editingTeam) M[k].team = newName;
+    });
+    TEAMS[newName] = { members };
+    delete TEAMS[editingTeam];
+    delete MEMBERS[editingTeam];
+    MEMBERS[newName] = members;
+    if (curTeam === editingTeam) curTeam = newName;
+    if (stTeam === editingTeam) stTeam = newName;
+  } else {
+    TEAMS[editingTeam].members = members;
+    MEMBERS[editingTeam] = members;
+  }
+
+  saveData();
+  closeEditTeamModalDirect();
+  renderTeamToggle();
+  buildChips(curTeam);
+  const first = Object.keys(M).find(k => M[k].team === curTeam);
+  if (first) showManu(first);
+  showToast(`✓ ${newName} 팀 편집 완료`);
+}
 function openAddTeamModal() {
   document.getElementById('add-team-name').value = '';
   document.getElementById('add-team-members').value = '';
