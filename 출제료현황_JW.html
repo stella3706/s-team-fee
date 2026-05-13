@@ -527,11 +527,9 @@ const FEE = {R:30,S:20,A:10,B:5};
 const e7 = () => Array.from({length:7},(_,i)=>({q:`${i+1}번`,p:'',g:''}));
 
 const DEFAULT_M = {};
-
 const MEMBERS = {};
-
-// 팀 관리 (동적)
 const DEFAULT_TEAMS = {};
+let ORDER = []; // 원고 표시 순서
 
 // 팀명 첫 글자 → 과목 매핑
 function getSubjectByTeam(teamName) {
@@ -564,6 +562,7 @@ let curTeam = '';
 let curManu = null;
 let statsMode = false;
 let stTeam = '';
+let ORDER = [];
 
 /* ═══════════════════
    Google Sheets 연동
@@ -602,6 +601,11 @@ async function loadData() {
         DEFAULT_M[key] = parsed.manuscripts[key];
       });
     }
+    if (parsed.order) {
+      ORDER = parsed.order;
+    } else {
+      ORDER = Object.keys(DEFAULT_M);
+    }
   } catch(e) {
     console.warn('불러오기 실패, 빈 상태로 시작:', e);
   } finally {
@@ -612,7 +616,7 @@ async function loadData() {
 async function saveData() {
   const manuscripts = {};
   Object.keys(M).forEach(k => { manuscripts[k] = {team: M[k].team, items: M[k].items}; });
-  const data = JSON.stringify({ teams: TEAMS, manuscripts });
+  const data = JSON.stringify({ teams: TEAMS, manuscripts, order: ORDER });
   try {
     await jsonp(GAS_URL + '?action=save&user=JW&data=' + encodeURIComponent(data));
     showToast('✓ 저장되었습니다');
@@ -673,27 +677,68 @@ function switchTeam(team, btn) {
     `<div class="empty-note">📋 원고가 없습니다. + 원고 추가 버튼으로 추가해주세요.</div>`;
 }
 
+function getTeamKeys(team) {
+  // ORDER에 있는 것 먼저, 없는 건 뒤에
+  const teamKeys = Object.keys(M).filter(k => M[k].team === team);
+  const ordered = ORDER.filter(k => teamKeys.includes(k));
+  const unordered = teamKeys.filter(k => !ORDER.includes(k));
+  return [...ordered, ...unordered];
+}
+
 function buildChips(team) {
   const c = getTeamColor(team);
   document.getElementById('chip-label').textContent = team + ' 담당 원고';
   const row = document.getElementById('chip-row');
   row.innerHTML = '';
-  Object.keys(M).filter(k=>M[k].team===team).forEach(key=>{
+
+  getTeamKeys(team).forEach(key => {
     const b = document.createElement('button');
     b.className = 'chip';
     b.id = `chip-${key}`;
     b.textContent = key;
-    b.style.cssText = curManu===key
+    b.draggable = true;
+    b.style.cssText = curManu === key
       ? `background:${c.bg};border-color:${c.border};color:${c.main};font-weight:700;`
       : '';
-    b.onclick = ()=>showManu(key);
+    b.onclick = () => showManu(key);
+
+    // 드래그 이벤트
+    b.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', key);
+      b.style.opacity = '0.4';
+    });
+    b.addEventListener('dragend', () => { b.style.opacity = '1'; });
+    b.addEventListener('dragover', e => {
+      e.preventDefault();
+      b.style.outline = `2px solid ${c.main}`;
+    });
+    b.addEventListener('dragleave', () => { b.style.outline = ''; });
+    b.addEventListener('drop', e => {
+      e.preventDefault();
+      b.style.outline = '';
+      const draggedKey = e.dataTransfer.getData('text/plain');
+      if (draggedKey === key) return;
+      // ORDER 업데이트
+      const keys = getTeamKeys(team);
+      const fromIdx = keys.indexOf(draggedKey);
+      const toIdx = keys.indexOf(key);
+      keys.splice(fromIdx, 1);
+      keys.splice(toIdx, 0, draggedKey);
+      // ORDER 전체 재구성
+      const otherKeys = ORDER.filter(k => M[k]?.team !== team);
+      ORDER = [...otherKeys, ...keys];
+      saveData();
+      buildChips(team);
+    });
+
     row.appendChild(b);
   });
+
   const addBtn = document.createElement('button');
   addBtn.className = 'chip-add-btn';
   addBtn.style.cssText = `--add-color:${c.main};`;
   addBtn.innerHTML = '+ 원고 추가';
-  addBtn.onclick = ()=>openAddModal(team);
+  addBtn.onclick = () => openAddModal(team);
   row.appendChild(addBtn);
 }
 
@@ -1017,6 +1062,7 @@ function confirmAddManu() {
     team: addTeamSel,
     items: Array.from({length: count}, (_,i) => ({q:`${i+1}번`, p:'', g:''}))
   };
+  ORDER.push(raw);
 
   saveData();
   closeAddModalDirect();
@@ -1068,22 +1114,26 @@ let editingKey = null;
 function openModal(key) {
   editingKey = key;
   const d = M[key];
-  const is12 = d.team === 'CS12';
   const tc = d.team.toLowerCase();
   const members = (TEAMS[d.team]?.members) || [];
+  const teamColor = getTeamColor(d.team);
 
   document.getElementById('modal-title').textContent = `원고 ${key} 편집`;
-  const saveBtn = document.getElementById('btn-save');
-  saveBtn.className = `btn-save${is12?' t12':''}`;
+  document.getElementById('btn-save').style.background = teamColor.main;
 
-  // 문항별 입력 행 생성
-  const rows = d.items.map((item, idx) => {
-    const memberOptions = members.map(m =>
+  renderEditRows(d.items, members, teamColor);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function renderEditRows(items, members, teamColor) {
+  const memberOptions = members.map(m => `<option value="${m}">${m}</option>`).join('');
+  const grades = ['R','S','A','B',''];
+  const gradeLabels = {R:'R',S:'S',A:'A',B:'B','':'—'};
+
+  const rows = items.map((item, idx) => {
+    const opts = members.map(m =>
       `<option value="${m}" ${item.p===m?'selected':''}>${m}</option>`
     ).join('');
-
-    const grades = ['R','S','A','B',''];
-    const gradeLabels = {R:'R',S:'S',A:'A',B:'B','':'—'};
     const radios = grades.map(g => {
       const gid = `g_${idx}_${g||'none'}`;
       const checked = item.g===g ? 'checked' : '';
@@ -1093,31 +1143,81 @@ function openModal(key) {
     }).join('');
 
     return `
-      <div class="edit-row">
+      <div class="edit-row" id="edit-row-${idx}" style="grid-template-columns:48px 1fr 120px 28px;">
         <span class="edit-row-label">${item.q}</span>
         <select class="edit-input" id="p_${idx}">
           <option value="">— 미배정 —</option>
-          ${memberOptions}
+          ${opts}
         </select>
         <div class="grade-radio-group" id="gr_${idx}">${radios}</div>
+        <button onclick="removeEditRow(${idx})" title="문항 삭제"
+          style="width:24px;height:24px;border:1px solid var(--gR-bd);border-radius:5px;background:var(--gR-bg);color:var(--gR);cursor:pointer;font-size:11px;font-weight:700;flex-shrink:0;">✕</button>
       </div>`;
   }).join('');
 
   document.getElementById('modal-body').innerHTML = `
     <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">
-      출제자를 선택하고 등급을 지정해주세요. 미배정은 선택 없이 두면 됩니다.
+      출제자를 선택하고 등급을 지정해주세요.
     </div>
-    ${rows}`;
+    <div id="edit-rows-wrap">${rows}</div>
+    <button onclick="addEditRow()" style="width:100%;margin-top:10px;padding:8px;border:1.5px dashed var(--border2);border-radius:7px;background:transparent;font-family:inherit;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;"
+      onmouseover="this.style.borderColor='${teamColor.main}';this.style.color='${teamColor.main}'"
+      onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text-muted)'">+ 문항 추가</button>`;
 
-  // 라디오 레이블 색상 동적 업데이트
-  d.items.forEach((_, idx) => {
+  // 라디오 레이블 색상 업데이트
+  items.forEach((_, idx) => {
     const grp = document.getElementById(`gr_${idx}`);
-    grp.querySelectorAll('input[type=radio]').forEach(radio => {
+    if (grp) grp.querySelectorAll('input[type=radio]').forEach(radio => {
       radio.addEventListener('change', () => updateGradeLabels(idx));
     });
   });
+}
 
-  document.getElementById('modal-overlay').classList.add('open');
+function addEditRow() {
+  const wrap = document.getElementById('edit-rows-wrap');
+  const currentCount = wrap.querySelectorAll('.edit-row').length;
+  const idx = currentCount;
+  const d = M[editingKey];
+  const members = (TEAMS[d.team]?.members) || [];
+  const teamColor = getTeamColor(d.team);
+  const opts = members.map(m => `<option value="${m}">${m}</option>`).join('');
+  const grades = ['R','S','A','B',''];
+  const gradeLabels = {R:'R',S:'S',A:'A',B:'B','':'—'};
+  const radios = grades.map(g => {
+    const gid = `g_${idx}_${g||'none'}`;
+    const selClass = !g ? 'sel-none' : '';
+    return `<input type="radio" name="grade_${idx}" id="${gid}" value="${g}" ${!g?'checked':''}>
+            <label for="${gid}" class="${selClass}">${gradeLabels[g]}</label>`;
+  }).join('');
+
+  const div = document.createElement('div');
+  div.className = 'edit-row';
+  div.id = `edit-row-${idx}`;
+  div.style.gridTemplateColumns = '48px 1fr 120px 28px';
+  div.innerHTML = `
+    <span class="edit-row-label">${idx+1}번</span>
+    <select class="edit-input" id="p_${idx}">
+      <option value="">— 미배정 —</option>
+      ${opts}
+    </select>
+    <div class="grade-radio-group" id="gr_${idx}">${radios}</div>
+    <button onclick="removeEditRow(${idx})" title="문항 삭제"
+      style="width:24px;height:24px;border:1px solid var(--gR-bd);border-radius:5px;background:var(--gR-bg);color:var(--gR);cursor:pointer;font-size:11px;font-weight:700;flex-shrink:0;">✕</button>`;
+  wrap.appendChild(div);
+  document.getElementById(`gr_${idx}`).querySelectorAll('input[type=radio]').forEach(radio => {
+    radio.addEventListener('change', () => updateGradeLabels(idx));
+  });
+}
+
+function removeEditRow(idx) {
+  const row = document.getElementById(`edit-row-${idx}`);
+  if (row) row.remove();
+  // 문항 번호 재정렬
+  const wrap = document.getElementById('edit-rows-wrap');
+  wrap.querySelectorAll('.edit-row').forEach((row, i) => {
+    const label = row.querySelector('.edit-row-label');
+    if (label) label.textContent = `${i+1}번`;
+  });
 }
 
 function updateGradeLabels(idx) {
@@ -1142,15 +1242,19 @@ function closeModalDirect() {
 
 function saveModal() {
   const d = M[editingKey];
-  d.items.forEach((item, idx) => {
-    const pSel = document.getElementById(`p_${idx}`);
-    const gSel = document.querySelector(`input[name="grade_${idx}"]:checked`);
-    item.p = pSel ? pSel.value : '';
-    item.g = gSel ? gSel.value : '';
-    // 출제자 없으면 등급도 초기화
-    if (!item.p) item.g = '';
+  const wrap = document.getElementById('edit-rows-wrap');
+  const rows = wrap.querySelectorAll('.edit-row');
+
+  // 문항 수가 바뀔 수 있으므로 동적으로 재구성
+  const newItems = Array.from(rows).map((row, i) => {
+    const pSel = document.getElementById(`p_${i}`);
+    const gSel = document.querySelector(`input[name="grade_${i}"]:checked`);
+    const p = pSel ? pSel.value : '';
+    const g = (gSel && p) ? gSel.value : '';
+    return { q: `${i+1}번`, p, g };
   });
 
+  d.items = newItems;
   saveData();
   closeModalDirect();
   showManu(editingKey);
